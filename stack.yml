@@ -6,7 +6,7 @@ functions:
   test-deploy:
     lang: node12
     handler: ./test-deploy
-    image: ghcr.io/Quasaer/test-deploy:latest
+    image: ghcr.io/quasaer/test-deploy:latest
 configuration:
   templates:
     - name: node12
