@@ -38,7 +38,7 @@ jobs:
           TAG="latest"
           faas-cli publish
           --extra-tag ${{ github.sha }}
-          --platforms linux/arm/v7
+          --platforms linux/arm/v7 -f
       - name: Login
         run:  >
           echo ${{secrets.OPENFAAS_PASSWORD}} |
