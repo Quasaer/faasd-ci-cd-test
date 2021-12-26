@@ -8,12 +8,23 @@ on:
     branches:
     - '*'
 
+permissions:
+  actions: read
+  checks: write
+  contents: read
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@master
+        with:
+          fetch-depth: 1
       - name: Get faas-cli
         run: curl -sLSf https://cli.openfaas.com | sudo sh
+      - name: Pull custom templates from stack.yml
+        run: faas-cli template pull stack
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -28,26 +39,24 @@ jobs:
           tr '[:upper:]' '[:lower:]')
       - name: Docker Login
         run: >
-          echo ${{secrets.DOCKER_PASSWORD}} |
-          docker login ghcr.io --username
-          ${{ steps.get_repo_owner.outputs.repo_owner }}
+          echo ${{secrets.GITHUB_TOKEN}} | 
+          docker login ghcr.io --username 
+          ${{ steps.get_repo_owner.outputs.repo_owner }} 
           --password-stdin
       - name: Publish functions
         run: >
-          OWNER="${{ steps.get_repo_owner.outputs.repo_owner }}"
+          OWNER="${{ steps.get_repo_owner.outputs.repo_owner }}" 
           TAG="latest"
           faas-cli publish
           --extra-tag ${{ github.sha }}
-          --platforms linux/arm/v7 -f stack.yml
+          --build-arg GO111MODULE=on
+          --platforms linux/arm/v7
       - name: Login
-        run:  >
-          echo ${{secrets.OPENFAAS_PASSWORD}} |
+        run: >
+          echo ${{secrets.OPENFAAS_PASSWORD}} | 
           faas-cli login --gateway ${{secrets.OPENFAAS_URL}} --password-stdin
       - name: Deploy
         run: >
           OWNER="${{ steps.get_repo_owner.outputs.repo_owner }}"
           TAG="${{ github.sha }}"
           faas-cli deploy --gateway ${{secrets.OPENFAAS_URL}}
-
-
-
