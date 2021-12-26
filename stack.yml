@@ -1,0 +1,13 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  test-deploy:
+    lang: node12
+    handler: ./test-deploy
+    image: ghcr.io/quasaer/test-deploy:latest
+configuration:
+  templates:
+    - name: node12
+
